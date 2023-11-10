@@ -1,0 +1,228 @@
+/* styles.css */
+
+/* Global styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #333; /* Dark grey background */
+    color: #fff; /* White text */
+}
+
+/* Header styles */
+.header {
+    position: relative;
+    padding: 20px;
+}
+
+.logo {
+    position: absolute;
+    top: 20px; /* Adjust the top position as needed */
+    right: 20px; /* Adjust the right position as needed */
+    width: 100px; /* Adjust the size as needed */
+    height: auto; /* Maintains aspect ratio */
+}
+
+/* Navigation bar styles */
+.navbar {
+    background-color: #333; /* Dark grey background for the navigation bar */
+}
+
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex; /* Display list items horizontally */
+}
+
+.navbar li {
+    margin-right: 20px; /* Adjusted spacing between list items */
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #fff; /* White text color for navigation links */
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    color: #f3c32c; /* Yellow text color on hover */
+}
+
+/* Content wrapper styles */
+.content-wrapper {
+    display: flex; /* Use flexbox to arrange content */
+    justify-content: space-between; /* Space between columns */
+    padding: 20px; /* Adjust padding as needed */
+}
+
+/* Left and right lists */
+.left-list, .right-list {
+    flex: 1; /* Equal width for both lists */
+}
+
+.left-list ul, .right-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.left-list ul li, .right-list ul li {
+    padding: 10px;
+    border: 1px solid #fff;
+    margin-bottom: 10px;
+}
+
+/* Main content styles */
+.main-content {
+    text-align: center;
+    flex: 3;
+}
+
+/* Header text styles */
+h1, h2, h3, h4, h5, h6 {
+    color: #f3c32c; /* Yellow header text color */
+}
+
+/* Center the form within the welcome container */
+.welcome-container {
+    text-align: center;
+}
+
+#login-form {
+    display: inline-block; /* Center the form  */
+    text-align: left; /* Reset text alignment for form elements */
+    background-color: #444; /* Darker grey background for the form */
+    padding: 40px; /* Add some padding to the form */
+    border-radius: 5px; /* Rounded corners for the form */
+}
+
+/* Style the form labels and inputs */
+#login-form label {
+    display: block;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+#login-form input[type="text"],
+#login-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #555; /* Slightly darker grey for input fields */
+    color: #fff;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+/* Style the submit button to span the width of the form */
+#login-form input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #3e8ef7; /* Blue button background */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#login-form input[type="submit"]:hover {
+    background-color: #265fb6; /* Darker blue on hover */
+}
+
+/* Footer styles */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.footer-content p {
+    margin: 0;
+    padding: 10px;
+}
+
+.footer-content a {
+    text-decoration: none;
+    color: #f3c32c; /* Yellow link color */
+    padding: 10px;
+}
+
+.footer-content a:hover {
+    color: #ffd700; /* Brighter yellow on hover */
+}
+
+/* Social media post styles */
+.user-posts {
+    list-style: none;
+    padding: 0;
+}
+
+.user-posts .post {
+    background-color: #444; /* Darker grey background for posts */
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.user-posts .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-posts .user-info h3 {
+    color: #f3c32c; /* Yellow text color for user names */
+}
+
+.user-posts .post-content {
+    color: #fff; /* White text color for post content */
+}
+
+.login-form {
+    background-color: #444; /* Darker grey background for the form */
+    padding: 20px; /* Add padding to the form */
+    border-radius: 5px; /* Rounded corners for the form */
+}
+
+.login-form label {
+    display: block;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.login-form input[type="text"],
+.login-form input[type="email"],
+.login-form input[type="tel"],
+.login-form input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #555; /* Slightly darker grey for input fields */
+    color: #fff;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.login-form input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #3e8ef7; /* Blue button background */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-form input[type="submit"]:hover {
+    background-color: #265fb6; /* Darker blue on hover */
+}
