@@ -31,7 +31,7 @@ export default function Upload() {
           uri: result.assets[0].uri,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to pick audio file');
     }
   }
@@ -60,7 +60,7 @@ export default function Upload() {
       Alert.alert('Success', 'Beat uploaded!', [
         { text: 'OK', onPress: () => router.back() },
       ]);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Upload Failed', 'Please try again');
     } finally {
       setLoading(false);

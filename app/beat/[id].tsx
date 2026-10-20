@@ -23,13 +23,14 @@ export default function BeatDetail() {
     loadBeat();
     loadComments();
     checkLiked();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function loadBeat() {
     try {
       const data = await db.beats.getById(id);
       setBeat(data);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to load beat');
       router.back();
     } finally {
@@ -55,7 +56,7 @@ export default function BeatDetail() {
     try {
       const liked = await db.likes.toggle(id);
       setIsLiked(liked);
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Please sign in to like beats');
     }
   }
@@ -68,7 +69,7 @@ export default function BeatDetail() {
       await db.comments.create(id, newComment);
       setNewComment('');
       loadComments();
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to post comment');
     } finally {
       setCommenting(false);

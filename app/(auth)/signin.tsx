@@ -24,7 +24,7 @@ export default function SignIn() {
     try {
       await db.auth.signIn(email, password);
       router.replace('/(tabs)/feed');
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Sign In Failed', 'Invalid email or password');
     } finally {
       setLoading(false);

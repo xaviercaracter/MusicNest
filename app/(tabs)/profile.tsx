@@ -18,6 +18,7 @@ export default function Profile() {
 
   useEffect(() => {
     loadUserBeats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadUserBeats() {

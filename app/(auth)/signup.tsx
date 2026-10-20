@@ -36,7 +36,7 @@ export default function SignUp() {
     try {
       await db.auth.signUp(username, email, password);
       router.replace('/(tabs)/feed');
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Sign Up Failed', 'Username or email may already be taken');
     } finally {
       setLoading(false);
