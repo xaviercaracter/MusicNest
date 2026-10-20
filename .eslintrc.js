@@ -10,6 +10,7 @@ module.exports = {
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'import/no-unresolved': 'off',
+    'import/namespace': 'off',
   },
   ignorePatterns: ['legacy/', 'node_modules/', '.expo/'],
 };
