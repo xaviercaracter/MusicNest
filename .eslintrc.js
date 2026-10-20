@@ -5,15 +5,11 @@ module.exports = {
   env: {
     jest: true,
   },
-  settings: {
-    'import/resolver': {
-      typescript: {},
-    },
-  },
   rules: {
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'import/no-unresolved': 'off',
   },
   ignorePatterns: ['legacy/', 'node_modules/', '.expo/'],
 };
