@@ -79,7 +79,7 @@ export default function BeatDetail() {
 
   async function handlePlay() {
     try {
-      const { usePlayerStore } = await import('../lib/player');
+      const { usePlayerStore } = await import('../../lib/player');
       const { loadBeat, play } = usePlayerStore.getState();
       await loadBeat(beat);
       await play();
