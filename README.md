@@ -26,8 +26,9 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 18+ (Node.js 24 recommended for Windows users)
 - npm or yarn
+- **Windows users**: PowerShell 5.1+ (pre-installed on Windows 10+)
 
 ### Installation
 
@@ -46,30 +47,65 @@ npm install
 
 3. Set up environment variables:
 
+**Unix (macOS/Linux):**
+
 ```bash
 cp .env.example .env
 ```
 
-4. Start PocketBase:
+**Windows (PowerShell):**
 
-```bash
-chmod +x pocketbase/run.sh
-./pocketbase/run.sh
+```powershell
+Copy-Item .env.example .env
 ```
 
-In a new terminal, seed the database:
+Edit `.env` and set your PocketBase admin credentials (you'll create these in step 4).
+
+4. Start PocketBase (works on all platforms):
+
+```bash
+npm run pocketbase:start
+```
+
+On first run, the script will automatically:
+- Download PocketBase 0.40.5 for your platform
+- Extract it to the `pocketbase/` directory
+- Start the server on http://127.0.0.1:8090
+
+**Create an admin account:**
+1. Open http://127.0.0.1:8090/_/ in your browser
+2. Create an admin account (this is your first-time setup)
+3. Update `.env` with your admin credentials:
+   ```
+   PB_ADMIN_EMAIL=your_admin@example.com
+   PB_ADMIN_PASSWORD=your_secure_password
+   ```
+
+5. In a new terminal, seed the database:
 
 ```bash
 npm run pocketbase:seed
 ```
 
-5. Start the Expo development server:
+The seed script is idempotent—you can run it multiple times safely.
+
+6. Start the Expo development server:
 
 ```bash
 npm start
 ```
 
 Press `w` for web, `i` for iOS simulator, or `a` for Android emulator.
+
+### Windows-Specific Notes
+
+- **PowerShell**: The setup uses PowerShell's `Expand-Archive` for extraction. If you encounter issues, ensure PowerShell execution policy allows scripts:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+- **PocketBase executable**: The script downloads `pocketbase.exe` for Windows automatically.
+- **Port conflicts**: If port 8090 is in use, PocketBase will show an error. Stop any conflicting services or change the port in PocketBase settings.
+- **Node.js version**: Node.js 24 is recommended for best compatibility with Expo and React Native on Windows.
 
 ## Features
 
