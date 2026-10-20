@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "pocketbase:start": "cd pocketbase && ./pocketbase serve",
+    "pocketbase:start": "node pocketbase/start.js",
     "pocketbase:seed": "node pocketbase/seed.js"
   },
   "dependencies": {
