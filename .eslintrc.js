@@ -5,6 +5,11 @@ module.exports = {
   env: {
     jest: true,
   },
+  settings: {
+    'import/resolver': {
+      typescript: {},
+    },
+  },
   rules: {
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

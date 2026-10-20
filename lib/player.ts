@@ -36,7 +36,7 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
   hasLoggedPlay: false,
 
   loadBeat: async (beat: Beat, queue: Beat[] = []) => {
-    const { sound: currentSound, cleanup } = get();
+    const { cleanup } = get();
     
     await cleanup();
 
