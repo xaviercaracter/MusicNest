@@ -1,0 +1,38 @@
+node_modules/
+.expo/
+.expo-shared/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+dist/
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# PocketBase
+pocketbase/pb_data/
+pocketbase/pocketbase
+pocketbase/pocketbase.exe
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Legacy
+legacy/
+
+# Test coverage
+coverage/
