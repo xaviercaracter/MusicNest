@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { Audio } from 'expo-av';
 import { Beat, db } from './db';
 
 interface PlayerState {
