@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio';
 import { Beat, db } from './db';
 
 interface PlayerState {
@@ -9,19 +9,23 @@ interface PlayerState {
   duration: number;
   queue: Beat[];
   currentIndex: number;
-  sound: Audio.Sound | null;
+  audioPlayer: ReturnType<typeof useAudioPlayer> | null;
   playStartTime: number | null;
   hasLoggedPlay: boolean;
 }
 
 interface PlayerActions {
-  loadBeat: (beat: Beat, queue?: Beat[]) => Promise<void>;
-  play: () => Promise<void>;
-  pause: () => Promise<void>;
-  seekTo: (position: number) => Promise<void>;
+  setAudioPlayer: (player: ReturnType<typeof useAudioPlayer>) => void;
+  loadBeat: (beat: Beat, queue?: Beat[]) => void;
+  play: () => void;
+  pause: () => void;
+  seekTo: (position: number) => void;
   next: () => Promise<void>;
   previous: () => Promise<void>;
-  cleanup: () => Promise<void>;
+  updatePosition: (position: number) => void;
+  updateDuration: (duration: number) => void;
+  updateIsPlaying: (isPlaying: boolean) => void;
+  cleanup: () => void;
 }
 
 export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => ({
@@ -31,68 +35,42 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
   duration: 0,
   queue: [],
   currentIndex: 0,
-  sound: null,
+  audioPlayer: null,
   playStartTime: null,
   hasLoggedPlay: false,
 
-  loadBeat: async (beat: Beat, queue: Beat[] = []) => {
-    const { cleanup } = get();
-    
-    await cleanup();
+  setAudioPlayer: (player) => set({ audioPlayer: player }),
+
+  loadBeat: (beat: Beat, queue: Beat[] = []) => {
+    const { audioPlayer } = get();
+    if (!audioPlayer) return;
 
     try {
-      await Audio.setAudioModeAsync({
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: true,
-      });
-
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: beat.audioUrl },
-        { shouldPlay: false },
-        (status) => {
-          if (!status.isLoaded) return;
-          
-          const state = get();
-          set({
-            position: status.positionMillis,
-            duration: status.durationMillis || 0,
-            isPlaying: status.isPlaying,
-          });
-
-          if (status.isPlaying && !state.hasLoggedPlay && status.positionMillis >= 30000) {
-            db.plays.record(beat.id).catch(console.error);
-            set({ hasLoggedPlay: true });
-          }
-
-          if (status.didJustFinish) {
-            get().next();
-          }
-        }
-      );
-
+      audioPlayer.replace(beat.audioUrl);
+      
       const queueToUse = queue.length > 0 ? queue : [beat];
       const index = queueToUse.findIndex(b => b.id === beat.id);
 
       set({
         currentBeat: beat,
-        sound: newSound,
         queue: queueToUse,
         currentIndex: index >= 0 ? index : 0,
         position: 0,
         duration: 0,
         hasLoggedPlay: false,
+        playStartTime: null,
       });
     } catch (error) {
       console.error('Failed to load beat:', error);
     }
   },
 
-  play: async () => {
-    const { sound, playStartTime } = get();
-    if (!sound) return;
+  play: () => {
+    const { audioPlayer, playStartTime } = get();
+    if (!audioPlayer) return;
 
     try {
-      await sound.playAsync();
+      audioPlayer.play();
       set({ 
         isPlaying: true,
         playStartTime: playStartTime || Date.now(),
@@ -102,24 +80,24 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
     }
   },
 
-  pause: async () => {
-    const { sound } = get();
-    if (!sound) return;
+  pause: () => {
+    const { audioPlayer } = get();
+    if (!audioPlayer) return;
 
     try {
-      await sound.pauseAsync();
+      audioPlayer.pause();
       set({ isPlaying: false });
     } catch (error) {
       console.error('Failed to pause:', error);
     }
   },
 
-  seekTo: async (position: number) => {
-    const { sound } = get();
-    if (!sound) return;
+  seekTo: (position: number) => {
+    const { audioPlayer } = get();
+    if (!audioPlayer) return;
 
     try {
-      await sound.setPositionAsync(position);
+      audioPlayer.seekTo(position / 1000);
       set({ position });
     } catch (error) {
       console.error('Failed to seek:', error);
@@ -127,35 +105,40 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => 
   },
 
   next: async () => {
-    const { queue, currentIndex, loadBeat } = get();
+    const { queue, currentIndex, loadBeat, play } = get();
     if (currentIndex < queue.length - 1) {
-      await loadBeat(queue[currentIndex + 1], queue);
-      await get().play();
+      loadBeat(queue[currentIndex + 1], queue);
+      play();
     }
   },
 
   previous: async () => {
-    const { queue, currentIndex, loadBeat, position } = get();
+    const { queue, currentIndex, loadBeat, seekTo, position } = get();
     
     if (position > 3000) {
-      await get().seekTo(0);
+      seekTo(0);
     } else if (currentIndex > 0) {
-      await loadBeat(queue[currentIndex - 1], queue);
-      await get().play();
+      loadBeat(queue[currentIndex - 1], queue);
+      get().play();
     }
   },
 
-  cleanup: async () => {
-    const { sound } = get();
-    if (sound) {
-      try {
-        await sound.unloadAsync();
-      } catch (error) {
-        console.error('Failed to cleanup sound:', error);
-      }
+  updatePosition: (position: number) => {
+    const state = get();
+    set({ position });
+
+    if (state.isPlaying && !state.hasLoggedPlay && position >= 30000 && state.currentBeat) {
+      db.plays.record(state.currentBeat.id).catch(console.error);
+      set({ hasLoggedPlay: true });
     }
+  },
+
+  updateDuration: (duration: number) => set({ duration }),
+
+  updateIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
+
+  cleanup: () => {
     set({
-      sound: null,
       isPlaying: false,
       position: 0,
       playStartTime: null,

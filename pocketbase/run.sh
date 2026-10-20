@@ -2,7 +2,7 @@
 
 set -e
 
-POCKETBASE_VERSION="0.24.2"
+POCKETBASE_VERSION="0.40.5"
 PLATFORM="linux"
 ARCH="amd64"
 

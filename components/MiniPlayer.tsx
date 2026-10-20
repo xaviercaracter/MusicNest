@@ -1,6 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useEffect } from 'react';
 import { usePlayerStore } from '../lib/player';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
@@ -10,7 +12,39 @@ export function MiniPlayer() {
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
   const styles = makeStyles(theme);
 
-  const { currentBeat, isPlaying, position, duration, play, pause } = usePlayerStore();
+  const player = useAudioPlayer();
+  const status = useAudioPlayerStatus(player);
+
+  const {
+    currentBeat,
+    isPlaying,
+    position,
+    duration,
+    setAudioPlayer,
+    updatePosition,
+    updateDuration,
+    updateIsPlaying,
+    play,
+    pause,
+  } = usePlayerStore();
+
+  useEffect(() => {
+    setAudioPlayer(player);
+  }, [player, setAudioPlayer]);
+
+  useEffect(() => {
+    if (status.currentTime !== undefined) {
+      updatePosition(status.currentTime * 1000);
+    }
+    if (status.duration !== undefined) {
+      updateDuration(status.duration * 1000);
+    }
+    updateIsPlaying(status.playing);
+
+    if (status.didJustFinish) {
+      usePlayerStore.getState().next();
+    }
+  }, [status, updatePosition, updateDuration, updateIsPlaying]);
 
   if (!currentBeat) return null;
 

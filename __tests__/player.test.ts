@@ -1,23 +1,21 @@
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, act } from '@testing-library/react-native';
 import { usePlayerStore } from '../lib/player';
 import { Beat } from '../lib/db';
 
-jest.mock('expo-av', () => ({
-  Audio: {
-    setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
-    Sound: {
-      createAsync: jest.fn().mockResolvedValue({
-        sound: {
-          playAsync: jest.fn().mockResolvedValue(undefined),
-          pauseAsync: jest.fn().mockResolvedValue(undefined),
-          setPositionAsync: jest.fn().mockResolvedValue(undefined),
-          unloadAsync: jest.fn().mockResolvedValue(undefined),
-          setOnPlaybackStatusUpdate: jest.fn(),
-        },
-        status: { isLoaded: true },
-      }),
-    },
-  },
+jest.mock('expo-audio', () => ({
+  useAudioPlayer: jest.fn(() => ({
+    replace: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    seekTo: jest.fn(),
+    remove: jest.fn(),
+  })),
+  useAudioPlayerStatus: jest.fn(() => ({
+    playing: false,
+    currentTime: 0,
+    duration: 0,
+    didJustFinish: false,
+  })),
 }));
 
 jest.mock('../lib/db', () => ({
@@ -51,11 +49,21 @@ const mockBeat: Beat = {
 };
 
 describe('usePlayerStore', () => {
+  const mockAudioPlayer = {
+    replace: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    seekTo: jest.fn(),
+    remove: jest.fn(),
+  };
+
   beforeEach(() => {
     const { result } = renderHook(() => usePlayerStore());
     act(() => {
       result.current.cleanup();
+      result.current.setAudioPlayer(mockAudioPlayer as any);
     });
+    jest.clearAllMocks();
   });
 
   it('should have initial state', () => {
@@ -68,73 +76,75 @@ describe('usePlayerStore', () => {
     expect(result.current.queue).toEqual([]);
   });
 
-  it('should load a beat', async () => {
+  it('should load a beat', () => {
     const { result } = renderHook(() => usePlayerStore());
 
-    await act(async () => {
-      await result.current.loadBeat(mockBeat);
+    act(() => {
+      result.current.setAudioPlayer(mockAudioPlayer as any);
+      result.current.loadBeat(mockBeat);
     });
 
-    await waitFor(() => {
-      expect(result.current.currentBeat).toEqual(mockBeat);
-      expect(result.current.queue).toEqual([mockBeat]);
-    });
+    expect(result.current.currentBeat).toEqual(mockBeat);
+    expect(result.current.queue).toEqual([mockBeat]);
+    expect(mockAudioPlayer.replace).toHaveBeenCalledWith(mockBeat.audioUrl);
   });
 
-  it('should load a beat with queue', async () => {
+  it('should load a beat with queue', () => {
     const { result } = renderHook(() => usePlayerStore());
     const queue = [mockBeat, { ...mockBeat, id: 'beat-2', title: 'Beat 2' }];
 
-    await act(async () => {
-      await result.current.loadBeat(mockBeat, queue);
+    act(() => {
+      result.current.setAudioPlayer(mockAudioPlayer as any);
+      result.current.loadBeat(mockBeat, queue);
     });
 
-    await waitFor(() => {
-      expect(result.current.queue).toEqual(queue);
-      expect(result.current.currentIndex).toBe(0);
-    });
+    expect(result.current.queue).toEqual(queue);
+    expect(result.current.currentIndex).toBe(0);
   });
 
-  it('should toggle play state', async () => {
+  it('should toggle play state', () => {
     const { result } = renderHook(() => usePlayerStore());
 
-    await act(async () => {
-      await result.current.loadBeat(mockBeat);
+    act(() => {
+      result.current.setAudioPlayer(mockAudioPlayer as any);
+      result.current.play();
     });
 
-    await act(async () => {
-      await result.current.play();
+    expect(mockAudioPlayer.play).toHaveBeenCalled();
+    expect(result.current.isPlaying).toBe(true);
+
+    act(() => {
+      result.current.pause();
     });
 
-    await waitFor(() => {
-      expect(result.current.isPlaying).toBe(true);
-    });
-
-    await act(async () => {
-      await result.current.pause();
-    });
-
-    await waitFor(() => {
-      expect(result.current.isPlaying).toBe(false);
-    });
+    expect(mockAudioPlayer.pause).toHaveBeenCalled();
+    expect(result.current.isPlaying).toBe(false);
   });
 
-  it('should cleanup on new beat load', async () => {
+  it('should update position and duration', () => {
     const { result } = renderHook(() => usePlayerStore());
 
-    await act(async () => {
-      await result.current.loadBeat(mockBeat);
+    act(() => {
+      result.current.updatePosition(5000);
+      result.current.updateDuration(180000);
     });
 
-    const firstSound = result.current.sound;
+    expect(result.current.position).toBe(5000);
+    expect(result.current.duration).toBe(180000);
+  });
 
-    await act(async () => {
-      await result.current.loadBeat({ ...mockBeat, id: 'beat-2' });
+  it('should log play after 30 seconds', () => {
+    const { result } = renderHook(() => usePlayerStore());
+    const mockDb = jest.requireMock('../lib/db');
+
+    act(() => {
+      result.current.setAudioPlayer(mockAudioPlayer as any);
+      result.current.loadBeat(mockBeat);
+      result.current.updateIsPlaying(true);
+      result.current.updatePosition(31000);
     });
 
-    await waitFor(() => {
-      expect(result.current.currentBeat?.id).toBe('beat-2');
-      expect(result.current.sound).not.toBe(firstSound);
-    });
+    expect(mockDb.db.plays.record).toHaveBeenCalledWith(mockBeat.id);
+    expect(result.current.hasLoggedPlay).toBe(true);
   });
 });
