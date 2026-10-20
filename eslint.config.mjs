@@ -7,9 +7,11 @@ export default [
       'legacy/**',
       'node_modules/**',
       '.expo/**',
+      'pocketbase/pb_data/**',
       'pocketbase/pb_migrations/**',
       'pocketbase/seed.js',
       'pocketbase/start.js',
+      'pocketbase/setup-collections.js',
     ],
   },
 ];
