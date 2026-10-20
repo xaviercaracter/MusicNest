@@ -1,0 +1,305 @@
+[
+  {
+    "id": "users",
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "schema": [
+      {
+        "id": "username",
+        "name": "username",
+        "type": "text",
+        "required": true,
+        "unique": true
+      },
+      {
+        "id": "bio",
+        "name": "bio",
+        "type": "text",
+        "required": false
+      },
+      {
+        "id": "avatar",
+        "name": "avatar",
+        "type": "file",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880
+        }
+      },
+      {
+        "id": "feedbackCredits",
+        "name": "feedbackCredits",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "id = @request.auth.id",
+    "deleteRule": "id = @request.auth.id"
+  },
+  {
+    "id": "beats",
+    "name": "beats",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "title",
+        "name": "title",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "audioUrl",
+        "name": "audioUrl",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "bpm",
+        "name": "bpm",
+        "type": "number",
+        "required": false
+      },
+      {
+        "id": "key",
+        "name": "key",
+        "type": "text",
+        "required": false
+      },
+      {
+        "id": "tags",
+        "name": "tags",
+        "type": "json",
+        "required": false
+      },
+      {
+        "id": "userId",
+        "name": "userId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      },
+      {
+        "id": "plays",
+        "name": "plays",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "id": "likes",
+        "name": "likes",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "id": "comments",
+        "name": "comments",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "userId = @request.auth.id",
+    "deleteRule": "userId = @request.auth.id"
+  },
+  {
+    "id": "comments",
+    "name": "comments",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "content",
+        "name": "content",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "beatId",
+        "name": "beatId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "beats",
+          "cascadeDelete": true
+        }
+      },
+      {
+        "id": "userId",
+        "name": "userId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "userId = @request.auth.id",
+    "deleteRule": "userId = @request.auth.id"
+  },
+  {
+    "id": "likes",
+    "name": "likes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "beatId",
+        "name": "beatId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "beats",
+          "cascadeDelete": true
+        }
+      },
+      {
+        "id": "userId",
+        "name": "userId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_unique_like ON likes (beatId, userId)"
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "",
+    "deleteRule": "userId = @request.auth.id"
+  },
+  {
+    "id": "follows",
+    "name": "follows",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "followerId",
+        "name": "followerId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      },
+      {
+        "id": "followingId",
+        "name": "followingId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_unique_follow ON follows (followerId, followingId)"
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "",
+    "deleteRule": "followerId = @request.auth.id"
+  },
+  {
+    "id": "plays",
+    "name": "plays",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "beatId",
+        "name": "beatId",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "beats",
+          "cascadeDelete": true
+        }
+      },
+      {
+        "id": "userId",
+        "name": "userId",
+        "type": "relation",
+        "required": false,
+        "options": {
+          "collectionId": "users",
+          "cascadeDelete": true
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": ""
+  },
+  {
+    "id": "battles",
+    "name": "battles",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "id": "title",
+        "name": "title",
+        "type": "text",
+        "required": true
+      },
+      {
+        "id": "description",
+        "name": "description",
+        "type": "text",
+        "required": false
+      },
+      {
+        "id": "status",
+        "name": "status",
+        "type": "select",
+        "required": true,
+        "options": {
+          "values": ["upcoming", "active", "ended"]
+        }
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": "",
+    "deleteRule": ""
+  }
+]
