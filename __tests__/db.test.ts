@@ -1,5 +1,15 @@
 import { db } from '../lib/db';
 
+jest.mock('pocketbase', () => {
+  return jest.fn().mockImplementation(() => ({
+    collection: jest.fn(),
+    authStore: {
+      isValid: false,
+      model: null,
+    },
+  }));
+});
+
 describe('db.auth', () => {
   it('should have authentication methods', () => {
     expect(db.auth.signUp).toBeDefined();
