@@ -29,6 +29,7 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 - Node.js 18+ (Node.js 24 recommended for Windows users)
 - npm or yarn
 - **Windows users**: PowerShell 5.1+ (pre-installed on Windows 10+)
+- **For iOS development**: macOS with Xcode (for local builds) OR EAS Build account (for cloud builds)
 
 ### Installation
 
@@ -59,7 +60,13 @@ cp .env.example .env
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and set your PocketBase admin credentials (you'll create these in step 4).
+Edit `.env` and configure:
+- **PB_ADMIN_EMAIL** / **PB_ADMIN_PASSWORD**: Your PocketBase admin credentials
+- **EXPO_PUBLIC_POCKETBASE_URL**: PocketBase server URL
+  - Local development: `http://127.0.0.1:8090`
+  - **iOS device on LAN**: Use your PC's LAN IP (e.g., `http://192.168.1.100:8090`)
+    - Windows: Run `ipconfig` and find IPv4 Address
+    - macOS/Linux: Run `ifconfig` or `ip addr`
 
 4. Start PocketBase (works on all platforms):
 
@@ -92,13 +99,134 @@ npm run pocketbase:seed
 
 The seed script is idempotent—you can run it multiple times safely.
 
-6. Start the Expo development server:
+6. Start the development server:
+
+**For Expo Go (quick start):**
 
 ```bash
 npm start
 ```
 
+**For development builds (recommended):**
+
+```bash
+npm run dev
+```
+
 Press `w` for web, `i` for iOS simulator, or `a` for Android emulator.
+
+## Running iOS Development Build + Web (Windows)
+
+This setup lets you run the iOS app on a physical device AND the web app simultaneously from your Windows PC using EAS cloud builds.
+
+### One-Time Setup
+
+1. **Install EAS CLI** (if not already installed):
+
+```bash
+npm install -g eas-cli
+```
+
+2. **Log in to Expo**:
+
+```bash
+eas login
+```
+
+3. **Configure the project**:
+
+```bash
+eas build:configure
+```
+
+4. **Register your iOS device**:
+
+On your iPhone, open Safari and go to the device registration URL:
+
+```bash
+eas device:create
+```
+
+Follow the prompts to install the registration profile on your device.
+
+### Building for iOS Device
+
+Build the development client for your iPhone:
+
+```bash
+npm run build:ios:dev
+```
+
+OR for simulator (if you're on macOS):
+
+```bash
+npm run build:ios:simulator
+```
+
+This uses EAS Build (cloud-based, works from Windows). The build takes ~10-15 minutes. Once complete:
+- Download the `.ipa` file from the EAS dashboard
+- Install on your device using the Expo Go app or TestFlight (for ad-hoc builds)
+- OR install directly via the EAS dashboard on your device
+
+### Running Both iOS and Web
+
+1. **Start PocketBase** (in terminal 1):
+
+```bash
+npm run pocketbase:start
+```
+
+2. **Find your PC's LAN IP**:
+
+**Windows (PowerShell):**
+```powershell
+ipconfig
+```
+Look for "IPv4 Address" under your active network adapter (e.g., `192.168.1.100`)
+
+3. **Update `.env`** with your LAN IP:
+
+```env
+EXPO_PUBLIC_POCKETBASE_URL=http://192.168.1.100:8090
+```
+
+⚠️ **Important**: Your phone must be on the same WiFi network as your PC.
+
+4. **Start the development server** (in terminal 2):
+
+```bash
+npm run dev
+```
+
+5. **Open on iOS device**:
+   - Open the Deep Cut development build app on your iPhone
+   - Scan the QR code shown in the terminal OR
+   - Enter the URL manually (e.g., `exp://192.168.1.100:8081`)
+
+6. **Open web** (press `w` in the terminal or open browser):
+   - Navigate to http://localhost:8081
+   - Both iOS and web will now connect to PocketBase on your PC
+
+### Development Workflow
+
+- **Hot reload**: Changes to code update instantly on both platforms
+- **PocketBase data**: Shared between iOS and web
+- **Debugging**: Use React Native Debugger for iOS, browser DevTools for web
+
+### Troubleshooting
+
+**iOS app can't connect to PocketBase:**
+- Verify your phone is on the same WiFi network
+- Check Windows Firewall allows connections on port 8090
+  ```powershell
+  New-NetFirewallRule -DisplayName "PocketBase Dev" -Direction Inbound -Protocol TCP -LocalPort 8090 -Action Allow
+  ```
+- Ping your PC from another device to confirm it's reachable
+
+**"Unable to connect to Metro":**
+- Ensure `npm run dev` is running
+- Check the Metro bundler URL matches your LAN IP
+- Try restarting the dev server
 
 ### Windows-Specific Notes
 
