@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, useColorScheme, TouchableOpacity, RefreshControl } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, FlatList, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { db, Beat } from '../../lib/db';
@@ -13,7 +13,6 @@ export default function Feed() {
 
   const [beats, setBeats] = useState<Beat[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   async function loadBeats() {
     try {
@@ -22,13 +21,19 @@ export default function Feed() {
     } catch (error) {
       console.error('Failed to load beats:', error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   }
 
   useEffect(() => {
-    loadBeats();
+    (async () => {
+      try {
+        const data = await db.beats.list();
+        setBeats(data);
+      } catch (error) {
+        console.error('Failed to load beats:', error);
+      }
+    })();
   }, []);
 
   function handleRefresh() {
@@ -36,58 +41,58 @@ export default function Feed() {
     loadBeats();
   }
 
-  function renderBeat({ item }: { item: Beat }) {
+  function renderBeat({ item: beat }: { item: Beat }) {
     return (
       <TouchableOpacity
         style={styles.beatCard}
-        onPress={() => router.push(`/beat/${item.id}`)}
+        onPress={() => router.push(`/beat/${beat.id}`)}
       >
         <View style={styles.beatHeader}>
-          <View>
-            <Text style={styles.beatTitle}>{item.title}</Text>
-            <Text style={styles.beatAuthor}>
-              {item.expand?.userId?.username || 'Unknown'}
+          <View style={styles.userInfo}>
+            <View style={styles.avatar}>
+              <Ionicons name="person" size={20} color={theme.primary} />
+            </View>
+            <Text style={styles.username}>
+              {beat.expand?.userId?.username || 'Unknown'}
             </Text>
-          </View>
-          <View style={styles.beatMeta}>
-            {item.bpm && <Text style={styles.beatMetaText}>{item.bpm} BPM</Text>}
-            {item.key && <Text style={styles.beatMetaText}>{item.key}</Text>}
           </View>
         </View>
 
-        {item.tags && item.tags.length > 0 && (
-          <View style={styles.tags}>
-            {item.tags.slice(0, 3).map((tag, idx) => (
-              <View key={idx} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
+        <View style={styles.beatContent}>
+          <View style={styles.artwork}>
+            <Ionicons name="musical-notes" size={32} color={theme.primary} />
+          </View>
+          <View style={styles.beatInfo}>
+            <Text style={styles.beatTitle}>{beat.title}</Text>
+            {beat.tags && beat.tags.length > 0 && (
+              <View style={styles.tags}>
+                {beat.tags.slice(0, 3).map((tag, idx) => (
+                  <View key={idx} style={styles.tag}>
+                    <Text style={styles.tagText}>{tag}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
+            )}
           </View>
-        )}
+        </View>
 
-        <View style={styles.beatStats}>
-          <View style={styles.stat}>
-            <Ionicons name="play" size={16} color={theme.textSecondary} />
-            <Text style={styles.statText}>{item.plays}</Text>
-          </View>
-          <View style={styles.stat}>
-            <Ionicons name="heart" size={16} color={theme.textSecondary} />
-            <Text style={styles.statText}>{item.likes}</Text>
-          </View>
-          <View style={styles.stat}>
-            <Ionicons name="chatbubble" size={16} color={theme.textSecondary} />
-            <Text style={styles.statText}>{item.comments}</Text>
+        <View style={styles.beatFooter}>
+          <View style={styles.stats}>
+            <View style={styles.stat}>
+              <Ionicons name="play" size={16} color={theme.textSecondary} />
+              <Text style={styles.statText}>{beat.plays}</Text>
+            </View>
+            <View style={styles.stat}>
+              <Ionicons name="heart" size={16} color={theme.textSecondary} />
+              <Text style={styles.statText}>{beat.likes}</Text>
+            </View>
+            <View style={styles.stat}>
+              <Ionicons name="chatbubble" size={16} color={theme.textSecondary} />
+              <Text style={styles.statText}>{beat.comments}</Text>
+            </View>
           </View>
         </View>
       </TouchableOpacity>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.emptyText}>Loading beats...</Text>
-      </View>
     );
   }
 
@@ -99,11 +104,17 @@ export default function Feed() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={theme.primary} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.primary}
+          />
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>No beats yet. Be the first to upload!</Text>
+            <Ionicons name="musical-notes" size={48} color={theme.textTertiary} />
+            <Text style={styles.emptyText}>No beats yet</Text>
+            <Text style={styles.emptySubtext}>Upload the first beat!</Text>
           </View>
         }
       />
@@ -119,57 +130,83 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
     },
     list: {
       padding: spacing.md,
-      gap: spacing.md,
     },
     beatCard: {
       backgroundColor: theme.surface,
       borderRadius: borderRadius.lg,
-      padding: spacing.md,
-      borderWidth: 1,
-      borderColor: theme.border,
+      marginBottom: spacing.md,
+      overflow: 'hidden',
     },
     beatHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: spacing.sm,
+      alignItems: 'center',
+      padding: spacing.md,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    avatar: {
+      width: 32,
+      height: 32,
+      borderRadius: borderRadius.full,
+      backgroundColor: theme.surfaceElevated,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    username: {
+      fontSize: typography.fontSizes.sm,
+      fontWeight: typography.fontWeights.medium,
+      color: theme.text,
+    },
+    beatContent: {
+      flexDirection: 'row',
+      padding: spacing.md,
+      paddingTop: 0,
+      gap: spacing.md,
+    },
+    artwork: {
+      width: 80,
+      height: 80,
+      borderRadius: borderRadius.md,
+      backgroundColor: theme.surfaceElevated,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    beatInfo: {
+      flex: 1,
+      justifyContent: 'center',
     },
     beatTitle: {
       fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.semibold,
+      fontWeight: typography.fontWeights.bold,
       color: theme.text,
       marginBottom: spacing.xs,
     },
-    beatAuthor: {
-      fontSize: typography.fontSizes.sm,
-      color: theme.textSecondary,
-    },
-    beatMeta: {
-      gap: spacing.xs,
-      alignItems: 'flex-end',
-    },
-    beatMetaText: {
-      fontSize: typography.fontSizes.xs,
-      color: theme.textTertiary,
-    },
     tags: {
       flexDirection: 'row',
+      flexWrap: 'wrap',
       gap: spacing.xs,
-      marginBottom: spacing.sm,
     },
     tag: {
       backgroundColor: theme.surfaceElevated,
       paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.xs,
+      paddingVertical: 2,
       borderRadius: borderRadius.sm,
     },
     tagText: {
       fontSize: typography.fontSizes.xs,
       color: theme.primary,
     },
-    beatStats: {
+    beatFooter: {
+      padding: spacing.md,
+      paddingTop: 0,
+    },
+    stats: {
       flexDirection: 'row',
-      gap: spacing.md,
+      gap: spacing.lg,
     },
     stat: {
       flexDirection: 'row',
@@ -182,14 +219,20 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
     },
     empty: {
       flex: 1,
-      justifyContent: 'center',
       alignItems: 'center',
+      justifyContent: 'center',
       paddingVertical: spacing.xxl,
     },
     emptyText: {
-      fontSize: typography.fontSizes.md,
+      fontSize: typography.fontSizes.lg,
+      fontWeight: typography.fontWeights.medium,
       color: theme.textSecondary,
-      textAlign: 'center',
+      marginTop: spacing.md,
+    },
+    emptySubtext: {
+      fontSize: typography.fontSizes.md,
+      color: theme.textTertiary,
+      marginTop: spacing.xs,
     },
   });
 }

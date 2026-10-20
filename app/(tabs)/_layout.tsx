@@ -29,21 +29,27 @@ export default function TabsLayout() {
           name="feed"
           options={{
             title: 'Feed',
-            tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={String(color || theme.text)} />
+            ),
           }}
         />
         <Tabs.Screen
           name="upload"
           options={{
             title: 'Upload',
-            tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="add-circle" size={size} color={String(color || theme.primary)} />
+            ),
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
             title: 'Profile',
-            tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={String(color || theme.text)} />
+            ),
           }}
         />
       </Tabs>

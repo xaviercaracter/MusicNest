@@ -97,7 +97,7 @@ async function seed() {
 
     for (const [index, commentData] of seedData.comments.entries()) {
       try {
-        const comment = await pb.collection('comments').create({
+        await pb.collection('comments').create({
           ...commentData,
           beatId: beats[0].id,
           userId: users[index % users.length].id,

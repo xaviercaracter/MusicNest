@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,22 +17,22 @@ export default function Profile() {
   const currentUser = db.auth.currentUser;
 
   useEffect(() => {
-    loadUserBeats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    (async () => {
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
 
-  async function loadUserBeats() {
-    if (!currentUser) return;
-
-    try {
-      const data = await db.beats.getUserBeats(currentUser.id);
-      setBeats(data);
-    } catch (error) {
-      console.error('Failed to load beats:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+      try {
+        const data = await db.beats.getUserBeats(currentUser.id);
+        setBeats(data);
+      } catch (error) {
+        console.error('Failed to load beats:', error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [currentUser]);
 
   function handleSignOut() {
     Alert.alert(
@@ -53,7 +53,11 @@ export default function Profile() {
   }
 
   if (!currentUser) {
-    return null;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.emptyText}>Please sign in</Text>
+      </View>
+    );
   }
 
   return (
@@ -69,7 +73,7 @@ export default function Profile() {
           <Text style={styles.creditsLabel}>Feedback Credits</Text>
           <Text style={styles.creditsValue}>{currentUser.feedbackCredits}</Text>
           <Text style={styles.creditsInfo}>
-            Earn credits by giving feedback on others' beats
+            Earn credits by giving feedback on others&apos; beats
           </Text>
         </View>
       </View>
@@ -79,7 +83,7 @@ export default function Profile() {
         {loading ? (
           <Text style={styles.emptyText}>Loading...</Text>
         ) : beats.length === 0 ? (
-          <Text style={styles.emptyText}>You haven't uploaded any beats yet</Text>
+          <Text style={styles.emptyText}>You haven&apos;t uploaded any beats yet</Text>
         ) : (
           beats.map((beat) => (
             <TouchableOpacity
@@ -130,8 +134,8 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
       borderBottomColor: theme.border,
     },
     avatar: {
-      width: 96,
-      height: 96,
+      width: 80,
+      height: 80,
       borderRadius: borderRadius.full,
       backgroundColor: theme.surface,
       alignItems: 'center',
@@ -152,13 +156,11 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
     },
     creditsCard: {
       backgroundColor: theme.surface,
-      borderRadius: borderRadius.lg,
       padding: spacing.md,
+      borderRadius: borderRadius.md,
       alignItems: 'center',
       marginTop: spacing.md,
       width: '100%',
-      borderWidth: 1,
-      borderColor: theme.border,
     },
     creditsLabel: {
       fontSize: typography.fontSizes.sm,
@@ -181,7 +183,7 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
     },
     sectionTitle: {
       fontSize: typography.fontSizes.lg,
-      fontWeight: typography.fontWeights.semibold,
+      fontWeight: typography.fontWeights.bold,
       color: theme.text,
       marginBottom: spacing.md,
     },
@@ -190,11 +192,9 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
       alignItems: 'center',
       justifyContent: 'space-between',
       backgroundColor: theme.surface,
-      borderRadius: borderRadius.md,
       padding: spacing.md,
+      borderRadius: borderRadius.md,
       marginBottom: spacing.sm,
-      borderWidth: 1,
-      borderColor: theme.border,
     },
     beatInfo: {
       flex: 1,
@@ -218,12 +218,6 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
       fontSize: typography.fontSizes.sm,
       color: theme.textSecondary,
     },
-    emptyText: {
-      fontSize: typography.fontSizes.md,
-      color: theme.textSecondary,
-      textAlign: 'center',
-      paddingVertical: spacing.lg,
-    },
     signOutButton: {
       margin: spacing.lg,
       padding: spacing.md,
@@ -237,6 +231,12 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
       fontSize: typography.fontSizes.md,
       fontWeight: typography.fontWeights.medium,
       color: theme.error,
+    },
+    emptyText: {
+      fontSize: typography.fontSizes.md,
+      color: theme.textSecondary,
+      textAlign: 'center',
+      marginTop: spacing.xl,
     },
   });
 }
