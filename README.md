@@ -16,11 +16,28 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 
 ## Stack
 
-- **Frontend**: Expo (React Native + Web) with TypeScript and Expo Router
-- **Backend**: PocketBase (prototype), with a modular data layer in `lib/db` for future migration to Firebase/Supabase
+- **Frontend**: Expo SDK 58 (React Native 0.88 + Web) with TypeScript and Expo Router
+- **React**: 19.3.0
+- **React Native**: 0.88.0
+- **Backend**: PocketBase 0.40.5 (prototype), with a modular data layer in `lib/db` for future migration to Firebase/Supabase
 - **Audio**: Expo AV for playback
-- **Testing**: Jest + React Native Testing Library
+- **Testing**: Jest 30 + React Native Testing Library 14
 - **CI**: GitHub Actions
+
+### Expo Go Compatibility
+
+**SDK 58 requires Expo Go 58.0.5 or later**
+
+If you're using Expo Go and see "Project is incompatible with this version of Expo Go":
+1. Update Expo Go from the App Store to the latest version (58.0.5+)
+2. **OR** use a development build (recommended) - see "Running iOS Development Build + Web" section
+
+According to [Expo's version API](https://api.expo.dev/v2/versions/latest):
+- **SDK 58**: Non-deprecated, requires iOS Client 58.0.5
+- **SDK 52-57**: Require newer client versions than currently available
+- **SDK 51 and below**: Older, but stable
+
+For production apps, **development builds are recommended** over Expo Go as they support custom native code and don't have Expo Go version constraints.
 
 ## Getting Started
 
