@@ -89,7 +89,12 @@ async function seed() {
           console.log(`✓ Created user: ${user.username}`);
         }
       } catch (error) {
-        console.error(`✗ Failed to create user ${userData.username}:`, error.message);
+        const errorData = error.response?.data || error.data || {};
+        const errorMsg = error.message || 'Unknown error';
+        console.error(`✗ Failed to create user ${userData.username}:`, JSON.stringify(errorData, null, 2) || errorMsg);
+        if (Object.keys(errorData).length === 0) {
+          console.error('   Full error:', error);
+        }
       }
     }
 
@@ -117,7 +122,12 @@ async function seed() {
           console.log(`✓ Created beat: ${beat.title}`);
         }
       } catch (error) {
-        console.error(`✗ Failed to create beat ${beatData.title}:`, error.message);
+        const errorData = error.response?.data || error.data || {};
+        const errorMsg = error.message || 'Unknown error';
+        console.error(`✗ Failed to create beat ${beatData.title}:`, JSON.stringify(errorData, null, 2) || errorMsg);
+        if (Object.keys(errorData).length === 0) {
+          console.error('   Full error:', error);
+        }
       }
     }
 
@@ -143,7 +153,12 @@ async function seed() {
           console.log(`✓ Created comment on beat: ${beats[0].title}`);
         }
       } catch (error) {
-        console.error(`✗ Failed to create comment:`, error.message);
+        const errorData = error.response?.data || error.data || {};
+        const errorMsg = error.message || 'Unknown error';
+        console.error(`✗ Failed to create comment:`, JSON.stringify(errorData, null, 2) || errorMsg);
+        if (Object.keys(errorData).length === 0) {
+          console.error('   Full error:', error);
+        }
       }
     }
 
