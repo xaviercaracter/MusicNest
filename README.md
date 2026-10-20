@@ -72,16 +72,19 @@ On first run, the script will automatically:
 - Extract it to the `pocketbase/` directory
 - Start the server on http://127.0.0.1:8090
 
-**Create an admin account:**
+**Set up your database:**
+
 1. Open http://127.0.0.1:8090/_/ in your browser
-2. Create an admin account (this is your first-time setup)
-3. Update `.env` with your admin credentials:
+2. Create an admin account (first-time setup)
+3. Go to **Collections** → **Import collections**
+4. Upload `pocketbase/schema.json` to create all 7 collections (users, beats, comments, likes, follows, plays, battles)
+5. Update `.env` with your admin credentials:
    ```
    PB_ADMIN_EMAIL=your_admin@example.com
    PB_ADMIN_PASSWORD=your_secure_password
    ```
 
-5. In a new terminal, seed the database:
+5. Seed the database with sample data:
 
 ```bash
 npm run pocketbase:seed
