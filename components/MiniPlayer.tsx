@@ -59,7 +59,7 @@ export function MiniPlayer({
   );
 }
 
-function makeStyles(theme: typeof colors.dark) {
+function makeStyles(theme: typeof colors.dark | typeof colors.light) {
   return StyleSheet.create({
     container: {
       flexDirection: 'row',

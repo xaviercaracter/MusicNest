@@ -6,7 +6,8 @@ import { db, Beat, Comment } from '../../lib/db';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 
 export default function BeatDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = params.id || '';
   const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
@@ -194,7 +195,7 @@ export default function BeatDetail() {
   );
 }
 
-function makeStyles(theme: typeof colors.dark) {
+function makeStyles(theme: typeof colors.dark | typeof colors.light) {
   return StyleSheet.create({
     container: {
       flex: 1,

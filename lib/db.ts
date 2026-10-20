@@ -73,12 +73,12 @@ export const db = {
         feedbackCredits: 3,
       });
       await pb.collection('users').authWithPassword(email, password);
-      return record as User;
+      return record as unknown as User;
     },
 
     async signIn(email: string, password: string): Promise<User> {
       const authData = await pb.collection('users').authWithPassword(email, password);
-      return authData.record as User;
+      return authData.record as unknown as User;
     },
 
     signOut() {
@@ -100,14 +100,14 @@ export const db = {
         sort: '-created',
         expand: 'userId',
       });
-      return result.items as Beat[];
+      return result.items as unknown as Beat[];
     },
 
     async getById(id: string): Promise<Beat> {
       const beat = await pb.collection('beats').getOne(id, {
         expand: 'userId',
       });
-      return beat as Beat;
+      return beat as unknown as Beat;
     },
 
     async create(data: {
@@ -127,7 +127,7 @@ export const db = {
         likes: 0,
         comments: 0,
       });
-      return beat as Beat;
+      return beat as unknown as Beat;
     },
 
     async getUserBeats(userId: string, page = 1, perPage = 20): Promise<Beat[]> {
@@ -135,7 +135,7 @@ export const db = {
         filter: `userId = "${userId}"`,
         sort: '-created',
       });
-      return result.items as Beat[];
+      return result.items as unknown as Beat[];
     },
   },
 
@@ -146,7 +146,7 @@ export const db = {
         sort: '-created',
         expand: 'userId',
       });
-      return result.items as Comment[];
+      return result.items as unknown as Comment[];
     },
 
     async create(beatId: string, content: string): Promise<Comment> {
@@ -158,7 +158,7 @@ export const db = {
         userId,
         content,
       });
-      return comment as Comment;
+      return comment as unknown as Comment;
     },
   },
 

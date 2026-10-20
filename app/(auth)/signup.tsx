@@ -113,7 +113,7 @@ export default function SignUp() {
   );
 }
 
-function makeStyles(theme: typeof colors.dark) {
+function makeStyles(theme: typeof colors.dark | typeof colors.light) {
   return StyleSheet.create({
     container: {
       flex: 1,
