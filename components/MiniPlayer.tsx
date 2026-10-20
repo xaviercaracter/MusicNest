@@ -1,80 +1,97 @@
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { usePlayerStore } from '../lib/player';
 import { colors, spacing, typography, borderRadius } from '../theme';
 
-interface MiniPlayerProps {
-  title: string;
-  artist: string;
-  isPlaying: boolean;
-  onPlayPause: () => void;
-  onNext?: () => void;
-  onPrevious?: () => void;
-}
-
-export function MiniPlayer({
-  title,
-  artist,
-  isPlaying,
-  onPlayPause,
-  onNext,
-  onPrevious,
-}: MiniPlayerProps) {
+export function MiniPlayer() {
+  const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? colors.dark : colors.light;
   const styles = makeStyles(theme);
 
+  const { currentBeat, isPlaying, position, duration, play, pause } = usePlayerStore();
+
+  if (!currentBeat) return null;
+
+  const progress = duration > 0 ? position / duration : 0;
+
+  function handlePlayPause() {
+    if (isPlaying) {
+      pause();
+    } else {
+      play();
+    }
+  }
+
+  function handlePress() {
+    router.push('/player');
+  }
+
   return (
-    <View style={styles.container}>
-      <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
-        <Text style={styles.artist} numberOfLines={1}>
-          {artist}
-        </Text>
+    <Pressable style={styles.container} onPress={handlePress}>
+      <View style={styles.progressBar}>
+        <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
       </View>
 
-      <View style={styles.controls}>
-        {onPrevious && (
-          <TouchableOpacity onPress={onPrevious} style={styles.controlButton}>
-            <Ionicons name="play-skip-back" size={20} color={theme.text} />
-          </TouchableOpacity>
-        )}
+      <View style={styles.content}>
+        <View style={styles.artPlaceholder}>
+          <Ionicons name="musical-notes" size={20} color={theme.text} />
+        </View>
 
-        <TouchableOpacity onPress={onPlayPause} style={styles.playButton}>
+        <View style={styles.info}>
+          <Text style={styles.title} numberOfLines={1}>
+            {currentBeat.title}
+          </Text>
+          <Text style={styles.artist} numberOfLines={1}>
+            {currentBeat.expand?.userId?.username || 'Unknown'}
+          </Text>
+        </View>
+
+        <TouchableOpacity onPress={handlePlayPause} style={styles.playButton}>
           <Ionicons
             name={isPlaying ? 'pause' : 'play'}
             size={24}
             color={theme.background}
           />
         </TouchableOpacity>
-
-        {onNext && (
-          <TouchableOpacity onPress={onNext} style={styles.controlButton}>
-            <Ionicons name="play-skip-forward" size={20} color={theme.text} />
-          </TouchableOpacity>
-        )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 function makeStyles(theme: typeof colors.dark | typeof colors.light) {
   return StyleSheet.create({
     container: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
       backgroundColor: theme.surface,
       borderTopWidth: 1,
       borderTopColor: theme.border,
-      paddingHorizontal: spacing.md,
-      paddingVertical: spacing.sm,
-      minHeight: 64,
+    },
+    progressBar: {
+      height: 2,
+      backgroundColor: theme.border,
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: theme.primary,
+    },
+    content: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: spacing.sm,
+      gap: spacing.sm,
+    },
+    artPlaceholder: {
+      width: 48,
+      height: 48,
+      borderRadius: borderRadius.sm,
+      backgroundColor: theme.surfaceElevated,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     info: {
       flex: 1,
-      marginRight: spacing.md,
+      marginRight: spacing.sm,
     },
     title: {
       fontSize: typography.fontSizes.md,
@@ -85,14 +102,6 @@ function makeStyles(theme: typeof colors.dark | typeof colors.light) {
     artist: {
       fontSize: typography.fontSizes.sm,
       color: theme.textSecondary,
-    },
-    controls: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-    },
-    controlButton: {
-      padding: spacing.xs,
     },
     playButton: {
       backgroundColor: theme.primary,

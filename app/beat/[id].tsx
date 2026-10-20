@@ -80,6 +80,9 @@ export default function BeatDetail() {
   async function handlePlay() {
     try {
       await db.plays.record(id);
+      const { loadBeat, play } = await import('../lib/player').then(m => m.usePlayerStore.getState());
+      await loadBeat(beat);
+      await play();
     } catch (error) {
       console.error('Failed to record play:', error);
     }
