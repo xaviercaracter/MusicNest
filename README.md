@@ -8,7 +8,7 @@ Deep Cut solves the cold start problem for new producers: when you upload your f
 
 ### Brand: Late Night
 
-The aesthetic is **Late Night**—dark-first with amber accents, built for late-night studio sessions.
+The aesthetic is **Late Night**â€”dark-first with amber accents, built for late-night studio sessions.
 
 - **Dark mode**: Near-black (#0A0A0A) with amber (#FFB000) highlights
 - **Light mode**: Cream (#F5EFE3) with deep amber (#B06E16)
@@ -16,18 +16,37 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 
 ## Stack
 
-- **Frontend**: Expo (React Native + Web) with TypeScript and Expo Router
-- **Backend**: PocketBase (prototype), with a modular data layer in `lib/db` for future migration to Firebase/Supabase
+- **Frontend**: Expo SDK 57 (React Native 0.86 + Web) with TypeScript and Expo Router
+- **React**: 19.3.0
+- **React Native**: 0.88.0
+- **Backend**: PocketBase 0.40.5 (prototype), with a modular data layer in `lib/db` for future migration to Firebase/Supabase
 - **Audio**: Expo AV for playback
-- **Testing**: Jest + React Native Testing Library
+- **Testing**: Jest 30 + React Native Testing Library 14
 - **CI**: GitHub Actions
+
+### Expo Go Compatibility
+
+**SDK 57 works with the current App Store Expo Go (57.x)**
+
+If you're using Expo Go and see "Project is incompatible with this version of Expo Go":
+1. Update Expo Go from the App Store to the latest version (57.0.9+)
+2. **OR** use a development build (recommended) - see "Running iOS Development Build + Web" section
+
+According to [Expo's version API](https://api.expo.dev/v2/versions/latest):
+- **SDK 57**: matches Expo Go 57.x on the App Store
+- **SDK 52-57**: Require newer client versions than currently available
+- **SDK 51 and below**: Older, but stable
+
+For production apps, **development builds are recommended** over Expo Go as they support custom native code and don't have Expo Go version constraints.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 18+ (Node.js 24 recommended for Windows users)
 - npm or yarn
+- **Windows users**: PowerShell 5.1+ (pre-installed on Windows 10+)
+- **For iOS development**: macOS with Xcode (for local builds) OR EAS Build account (for cloud builds)
 
 ### Installation
 
@@ -46,30 +65,195 @@ npm install
 
 3. Set up environment variables:
 
+**Unix (macOS/Linux):**
+
 ```bash
 cp .env.example .env
 ```
 
-4. Start PocketBase:
+**Windows (PowerShell):**
 
-```bash
-chmod +x pocketbase/run.sh
-./pocketbase/run.sh
+```powershell
+Copy-Item .env.example .env
 ```
 
-In a new terminal, seed the database:
+Edit `.env` and configure:
+- **PB_ADMIN_EMAIL** / **PB_ADMIN_PASSWORD**: Your PocketBase admin credentials
+- **EXPO_PUBLIC_POCKETBASE_URL**: PocketBase server URL
+  - Local development: `http://127.0.0.1:8090`
+  - **iOS device on LAN**: Use your PC's LAN IP (e.g., `http://192.168.1.100:8090`)
+    - Windows: Run `ipconfig` and find IPv4 Address
+    - macOS/Linux: Run `ifconfig` or `ip addr`
+
+4. Start PocketBase (works on all platforms):
+
+```bash
+npm run pocketbase:start
+```
+
+On first run, the script will automatically:
+- Download PocketBase 0.40.5 for your platform
+- Extract it to the `pocketbase/` directory
+- Start the server on http://127.0.0.1:8090
+
+**Set up your database:**
+
+1. Open http://127.0.0.1:8090/_/ in your browser
+2. Create an admin account (first-time setup)
+3. Go to **Collections** â†’ **Import collections**
+4. Upload `pocketbase/schema.json` to create all 7 collections (users, beats, comments, likes, follows, plays, battles)
+5. Update `.env` with your admin credentials:
+   ```
+   PB_ADMIN_EMAIL=your_admin@example.com
+   PB_ADMIN_PASSWORD=your_secure_password
+   ```
+
+5. Seed the database with sample data:
 
 ```bash
 npm run pocketbase:seed
 ```
 
-5. Start the Expo development server:
+The seed script is idempotentâ€”you can run it multiple times safely.
+
+6. Start the development server:
+
+**For Expo Go (quick start):**
 
 ```bash
 npm start
 ```
 
+**For development builds (recommended):**
+
+```bash
+npm run dev
+```
+
 Press `w` for web, `i` for iOS simulator, or `a` for Android emulator.
+
+## Running iOS Development Build + Web (Windows)
+
+This setup lets you run the iOS app on a physical device AND the web app simultaneously from your Windows PC using EAS cloud builds.
+
+### One-Time Setup
+
+1. **Install EAS CLI** (if not already installed):
+
+```bash
+npm install -g eas-cli
+```
+
+2. **Log in to Expo**:
+
+```bash
+eas login
+```
+
+3. **Configure the project**:
+
+```bash
+eas build:configure
+```
+
+4. **Register your iOS device**:
+
+On your iPhone, open Safari and go to the device registration URL:
+
+```bash
+eas device:create
+```
+
+Follow the prompts to install the registration profile on your device.
+
+### Building for iOS Device
+
+Build the development client for your iPhone:
+
+```bash
+npm run build:ios:dev
+```
+
+OR for simulator (if you're on macOS):
+
+```bash
+npm run build:ios:simulator
+```
+
+This uses EAS Build (cloud-based, works from Windows). The build takes ~10-15 minutes. Once complete:
+- Download the `.ipa` file from the EAS dashboard
+- Install on your device using the Expo Go app or TestFlight (for ad-hoc builds)
+- OR install directly via the EAS dashboard on your device
+
+### Running Both iOS and Web
+
+1. **Start PocketBase** (in terminal 1):
+
+```bash
+npm run pocketbase:start
+```
+
+2. **Find your PC's LAN IP**:
+
+**Windows (PowerShell):**
+```powershell
+ipconfig
+```
+Look for "IPv4 Address" under your active network adapter (e.g., `192.168.1.100`)
+
+3. **Update `.env`** with your LAN IP:
+
+```env
+EXPO_PUBLIC_POCKETBASE_URL=http://192.168.1.100:8090
+```
+
+âš ï¸ **Important**: Your phone must be on the same WiFi network as your PC.
+
+4. **Start the development server** (in terminal 2):
+
+```bash
+npm run dev
+```
+
+5. **Open on iOS device**:
+   - Open the Deep Cut development build app on your iPhone
+   - Scan the QR code shown in the terminal OR
+   - Enter the URL manually (e.g., `exp://192.168.1.100:8081`)
+
+6. **Open web** (press `w` in the terminal or open browser):
+   - Navigate to http://localhost:8081
+   - Both iOS and web will now connect to PocketBase on your PC
+
+### Development Workflow
+
+- **Hot reload**: Changes to code update instantly on both platforms
+- **PocketBase data**: Shared between iOS and web
+- **Debugging**: Use React Native Debugger for iOS, browser DevTools for web
+
+### Troubleshooting
+
+**iOS app can't connect to PocketBase:**
+- Verify your phone is on the same WiFi network
+- Check Windows Firewall allows connections on port 8090
+  ```powershell
+  New-NetFirewallRule -DisplayName "PocketBase Dev" -Direction Inbound -Protocol TCP -LocalPort 8090 -Action Allow
+  ```
+- Ping your PC from another device to confirm it's reachable
+
+**"Unable to connect to Metro":**
+- Ensure `npm run dev` is running
+- Check the Metro bundler URL matches your LAN IP
+- Try restarting the dev server
+
+### Windows-Specific Notes
+
+- **PowerShell**: The setup uses PowerShell's `Expand-Archive` for extraction. If you encounter issues, ensure PowerShell execution policy allows scripts:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+- **PocketBase executable**: The script downloads `pocketbase.exe` for Windows automatically.
+- **Port conflicts**: If port 8090 is in use, PocketBase will show an error. Stop any conflicting services or change the port in PocketBase settings.
+- **Node.js version**: Node.js 24 is recommended for best compatibility with Expo and React Native on Windows.
 
 ## Features
 
@@ -152,24 +336,24 @@ Deep Cut will leverage AI to enhance the producer experience:
 
 ```
 .
-├── app/                  # Expo Router screens
-│   ├── (auth)/          # Sign in, sign up
-│   ├── (tabs)/          # Feed, upload, profile
-│   ├── beat/[id].tsx    # Beat detail
-│   ├── _layout.tsx      # Root layout
-│   └── index.tsx        # Entry point
-├── components/          # Reusable components
-│   └── MiniPlayer.tsx   # Persistent mini player
-├── lib/
-│   └── db.ts           # Modular data access layer
-├── pocketbase/         # Backend setup
-│   ├── schema.json     # Collection definitions
-│   ├── seed.js         # Seed data
-│   └── run.sh          # PocketBase launcher
-├── __tests__/          # Jest tests
-├── theme.ts            # Design tokens (colors, spacing, typography)
-├── .github/workflows/  # GitHub Actions CI
-└── README.md
+â”œâ”€â”€ app/                  # Expo Router screens
+â”‚   â”œâ”€â”€ (auth)/          # Sign in, sign up
+â”‚   â”œâ”€â”€ (tabs)/          # Feed, upload, profile
+â”‚   â”œâ”€â”€ beat/[id].tsx    # Beat detail
+â”‚   â”œâ”€â”€ _layout.tsx      # Root layout
+â”‚   â””â”€â”€ index.tsx        # Entry point
+â”œâ”€â”€ components/          # Reusable components
+â”‚   â””â”€â”€ MiniPlayer.tsx   # Persistent mini player
+â”œâ”€â”€ lib/
+â”‚   â””â”€â”€ db.ts           # Modular data access layer
+â”œâ”€â”€ pocketbase/         # Backend setup
+â”‚   â”œâ”€â”€ schema.json     # Collection definitions
+â”‚   â”œâ”€â”€ seed.js         # Seed data
+â”‚   â””â”€â”€ run.sh          # PocketBase launcher
+â”œâ”€â”€ __tests__/          # Jest tests
+â”œâ”€â”€ theme.ts            # Design tokens (colors, spacing, typography)
+â”œâ”€â”€ .github/workflows/  # GitHub Actions CI
+â””â”€â”€ README.md
 ```
 
 ## Gaps and Open Decisions
