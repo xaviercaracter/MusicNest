@@ -8,7 +8,7 @@ Deep Cut solves the cold start problem for new producers: when you upload your f
 
 ### Brand: Late Night
 
-The aesthetic is **Late Night**—dark-first with amber accents, built for late-night studio sessions.
+The aesthetic is **Late Night**â€”dark-first with amber accents, built for late-night studio sessions.
 
 - **Dark mode**: Near-black (#0A0A0A) with amber (#FFB000) highlights
 - **Light mode**: Cream (#F5EFE3) with deep amber (#B06E16)
@@ -16,7 +16,7 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 
 ## Stack
 
-- **Frontend**: Expo SDK 58 (React Native 0.88 + Web) with TypeScript and Expo Router
+- **Frontend**: Expo SDK 57 (React Native 0.86 + Web) with TypeScript and Expo Router
 - **React**: 19.3.0
 - **React Native**: 0.88.0
 - **Backend**: PocketBase 0.40.5 (prototype), with a modular data layer in `lib/db` for future migration to Firebase/Supabase
@@ -26,14 +26,14 @@ The aesthetic is **Late Night**—dark-first with amber accents, built for late-
 
 ### Expo Go Compatibility
 
-**SDK 58 requires Expo Go 58.0.5 or later**
+**SDK 57 works with the current App Store Expo Go (57.x)**
 
 If you're using Expo Go and see "Project is incompatible with this version of Expo Go":
-1. Update Expo Go from the App Store to the latest version (58.0.5+)
+1. Update Expo Go from the App Store to the latest version (57.0.9+)
 2. **OR** use a development build (recommended) - see "Running iOS Development Build + Web" section
 
 According to [Expo's version API](https://api.expo.dev/v2/versions/latest):
-- **SDK 58**: Non-deprecated, requires iOS Client 58.0.5
+- **SDK 57**: matches Expo Go 57.x on the App Store
 - **SDK 52-57**: Require newer client versions than currently available
 - **SDK 51 and below**: Older, but stable
 
@@ -100,7 +100,7 @@ On first run, the script will automatically:
 
 1. Open http://127.0.0.1:8090/_/ in your browser
 2. Create an admin account (first-time setup)
-3. Go to **Collections** → **Import collections**
+3. Go to **Collections** â†’ **Import collections**
 4. Upload `pocketbase/schema.json` to create all 7 collections (users, beats, comments, likes, follows, plays, battles)
 5. Update `.env` with your admin credentials:
    ```
@@ -114,7 +114,7 @@ On first run, the script will automatically:
 npm run pocketbase:seed
 ```
 
-The seed script is idempotent—you can run it multiple times safely.
+The seed script is idempotentâ€”you can run it multiple times safely.
 
 6. Start the development server:
 
@@ -207,7 +207,7 @@ Look for "IPv4 Address" under your active network adapter (e.g., `192.168.1.100`
 EXPO_PUBLIC_POCKETBASE_URL=http://192.168.1.100:8090
 ```
 
-⚠️ **Important**: Your phone must be on the same WiFi network as your PC.
+âš ï¸ **Important**: Your phone must be on the same WiFi network as your PC.
 
 4. **Start the development server** (in terminal 2):
 
@@ -336,24 +336,24 @@ Deep Cut will leverage AI to enhance the producer experience:
 
 ```
 .
-├── app/                  # Expo Router screens
-│   ├── (auth)/          # Sign in, sign up
-│   ├── (tabs)/          # Feed, upload, profile
-│   ├── beat/[id].tsx    # Beat detail
-│   ├── _layout.tsx      # Root layout
-│   └── index.tsx        # Entry point
-├── components/          # Reusable components
-│   └── MiniPlayer.tsx   # Persistent mini player
-├── lib/
-│   └── db.ts           # Modular data access layer
-├── pocketbase/         # Backend setup
-│   ├── schema.json     # Collection definitions
-│   ├── seed.js         # Seed data
-│   └── run.sh          # PocketBase launcher
-├── __tests__/          # Jest tests
-├── theme.ts            # Design tokens (colors, spacing, typography)
-├── .github/workflows/  # GitHub Actions CI
-└── README.md
+â”œâ”€â”€ app/                  # Expo Router screens
+â”‚   â”œâ”€â”€ (auth)/          # Sign in, sign up
+â”‚   â”œâ”€â”€ (tabs)/          # Feed, upload, profile
+â”‚   â”œâ”€â”€ beat/[id].tsx    # Beat detail
+â”‚   â”œâ”€â”€ _layout.tsx      # Root layout
+â”‚   â””â”€â”€ index.tsx        # Entry point
+â”œâ”€â”€ components/          # Reusable components
+â”‚   â””â”€â”€ MiniPlayer.tsx   # Persistent mini player
+â”œâ”€â”€ lib/
+â”‚   â””â”€â”€ db.ts           # Modular data access layer
+â”œâ”€â”€ pocketbase/         # Backend setup
+â”‚   â”œâ”€â”€ schema.json     # Collection definitions
+â”‚   â”œâ”€â”€ seed.js         # Seed data
+â”‚   â””â”€â”€ run.sh          # PocketBase launcher
+â”œâ”€â”€ __tests__/          # Jest tests
+â”œâ”€â”€ theme.ts            # Design tokens (colors, spacing, typography)
+â”œâ”€â”€ .github/workflows/  # GitHub Actions CI
+â””â”€â”€ README.md
 ```
 
 ## Gaps and Open Decisions
